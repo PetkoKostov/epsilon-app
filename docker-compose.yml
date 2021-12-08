@@ -1,0 +1,43 @@
+version: "3.3"
+services:
+  app:
+    build:
+      args:
+        user: petko
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: infinity
+    container_name: infinity-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    depends_on:
+      - redis
+    networks:
+      - infinity
+
+  nginx:
+    image: nginx:1.17-alpine
+    container_name: infinity-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d
+    networks:
+      - infinity
+
+  redis:
+    image: redis:6.2
+    ports:
+      - "6379:6379"
+    networks:
+      - infinity
+
+networks:
+  infinity:
+    driver: bridge
+
